@@ -1,21 +1,7 @@
-﻿using ScreenSound.Menus;
+﻿using ScreenSound.db; // Referência à classe de conexão e DAL
 using ScreenSound.Modelos;
-using ScreenSound.db; // Referência à classe de conexão
-using System;
-using System.Collections.Generic;
 
-class Program
-{
-    static void Main(string[] args)
-    {
-        Artista ira = new Artista("Ira!", "Banda Ira!");
-        Artista beatles = new("The Beatles", "Banda The Beatles");
-
-        Dictionary<string, Artista> artistasRegistrados = new();
-        artistasRegistrados.Add(ira.Nome, ira);
-        artistasRegistrados.Add(beatles.Nome, beatles);
-
-        Dictionary<int, Action> opcoes = new();
+Dictionary<int, Action> opcoes = new();
         opcoes.Add(1, RegistrarArtista);
         opcoes.Add(2, RegistrarMusica);
         opcoes.Add(3, MostrarArtistas);
@@ -26,7 +12,6 @@ class Program
         void ExibirLogo()
         {
             Console.WriteLine(@"
-
 ░██████╗░█████╗░██████╗░███████╗███████╗███╗░░██╗  ░██████╗░█████╗░██╗░░░██╗███╗░░██╗██████╗░
 ██╔════╝██╔══██╗██╔══██╗██╔════╝██╔════╝████╗░██║  ██╔════╝██╔══██╗██║░░░██║████╗░██║██╔══██╗
 ╚█████╗░██║░░╚═╝██████╔╝█████╗░░█████╗░░██╔██╗██║  ╚█████╗░██║░░██║██║░░░██║██╔██╗██║██║░░██║
@@ -44,7 +29,7 @@ class Program
             Console.WriteLine("Digite 2 para registrar a música de um artista");
             Console.WriteLine("Digite 3 para mostrar todos os artistas");
             Console.WriteLine("Digite 4 para exibir todas as músicas de um artista");
-            Console.WriteLine("Digite 5 para testar a conexão com o banco de dados"); // Nova opção
+            Console.WriteLine("Digite 5 para testar a conexão com o banco de dados");
             Console.WriteLine("Digite -1 para sair");
 
             Console.Write("\nDigite a sua opção: ");
@@ -65,7 +50,21 @@ class Program
         void RegistrarArtista()
         {
             Console.WriteLine("Registrar Artista selecionado.");
-            // Lógica para registrar artista
+
+            Console.Write("Digite o nome do artista: ");
+            string nome = Console.ReadLine()!;
+
+            Console.Write("Digite a bio do artista: ");
+            string bio = Console.ReadLine()!;
+
+            Console.Write("Digite a URL da foto de perfil do artista: ");
+            string fotoPerfil = Console.ReadLine()!;
+
+            var artista = new Artista(nome, bio) { FotoPerfil = fotoPerfil };
+
+            var artistaDAL = new ArtistaDAL(); // Instancia a classe ArtistaDAL
+            artistaDAL.Adicionar(artista); // Chama o método Adicionar
+            Console.WriteLine("Artista registrado com sucesso!");
         }
 
         void RegistrarMusica()
@@ -78,8 +77,8 @@ class Program
         {
             Console.WriteLine("Mostrar Artistas selecionado.");
 
-            var dbConnection = new Connection(); // Instancia a classe de conexão
-            IEnumerable<Artista> artistas = dbConnection.Listar(); // Chama o método Listar para obter os artistas
+            var artistaDAL = new ArtistaDAL(); // Instancia a classe ArtistaDAL
+            IEnumerable<Artista> artistas = artistaDAL.Listar(); // Chama o método Listar para obter os artistas
 
             foreach (var artista in artistas)
             {
@@ -117,5 +116,3 @@ class Program
         }
 
         ExibirOpcoesDoMenu();
-    }
-}

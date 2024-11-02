@@ -9,7 +9,7 @@ namespace ScreenSound.db
         // Método para adicionar um novo artista ao banco de dados
         public void Adicionar(Artista artista)
         {
-            using var connection = new Connection().GetConnection(); // Obter a conexão e abrir automaticamente
+            using var connection = new Connection().GetConnection();
 
             string sql = "INSERT INTO Artistas (Nome, FotoPerfil, Bio) VALUES (@nome, @fotoPerfil, @bio)";
             MySqlCommand command = new MySqlCommand(sql, connection);
@@ -19,7 +19,7 @@ namespace ScreenSound.db
             command.Parameters.AddWithValue("@fotoPerfil", artista.FotoPerfil);
             command.Parameters.AddWithValue("@bio", artista.Bio);
 
-            int linhasAfetadas = command.ExecuteNonQuery(); // Executa o comando
+            int linhasAfetadas = command.ExecuteNonQuery();
             Console.WriteLine($"Linhas afetadas: {linhasAfetadas}");
         }
 
