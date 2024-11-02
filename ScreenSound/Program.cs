@@ -4,6 +4,10 @@ using ScreenSound.db; // Referência à classe de conexão
 using System;
 using System.Collections.Generic;
 
+class Program
+{
+    static void Main(string[] args)
+    {
         Artista ira = new Artista("Ira!", "Banda Ira!");
         Artista beatles = new("The Beatles", "Banda The Beatles");
 
@@ -73,7 +77,14 @@ using System.Collections.Generic;
         void MostrarArtistas()
         {
             Console.WriteLine("Mostrar Artistas selecionado.");
-            // Lógica para mostrar artistas
+
+            var dbConnection = new Connection(); // Instancia a classe de conexão
+            IEnumerable<Artista> artistas = dbConnection.Listar(); // Chama o método Listar para obter os artistas
+
+            foreach (var artista in artistas)
+            {
+                Console.WriteLine($"Nome: {artista.Nome}, Bio: {artista.Bio}, FotoPerfil: {artista.FotoPerfil}");
+            }
         }
 
         void MostrarMusicas()
@@ -106,4 +117,5 @@ using System.Collections.Generic;
         }
 
         ExibirOpcoesDoMenu();
-    
+    }
+}

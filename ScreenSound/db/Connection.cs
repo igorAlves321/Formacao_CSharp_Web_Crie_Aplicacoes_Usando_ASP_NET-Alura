@@ -27,7 +27,7 @@ public class Connection
     // Método para fechar a conexão
     public void CloseConnection(MySqlConnection connection)
     {
-        if (connection != null)
+        if (connection != null && connection.State == System.Data.ConnectionState.Open)
         {
             connection.Close();
             Console.WriteLine("Conexão fechada.");
