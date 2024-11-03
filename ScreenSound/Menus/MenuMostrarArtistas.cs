@@ -1,18 +1,20 @@
 ﻿using ScreenSound.Modelos;
+using ScreenSound.db;
 
 namespace ScreenSound.Menus;
 
-internal class MenuMostrarArtistas : Menu
+public class MenuMostrarArtistas : Menu
 {
-    public override void Executar(Dictionary<string, Artista> musicasRegistradas)
+    public override void Executar(ArtistaDAL artistaDAL)
     {
-        base.Executar(musicasRegistradas);
-        ExibirTituloDaOpcao("Exibindo todos os artistas registradas na nossa aplicação");
+        base.Executar(artistaDAL);
+        ExibirTituloDaOpcao("Exibindo todos os artistas registrados na nossa aplicação");
 
-        foreach (string artista in musicasRegistradas.Keys)
-        {
-            Console.WriteLine($"Artista: {artista}");
-        }
+        // Chama o método Listar diretamente e usa var para inferência de tipo
+        var artistas = artistaDAL.Listar();
+
+        Console.WriteLine("Artistas registrados:");
+        Console.WriteLine(artistas);
 
         Console.WriteLine("\nDigite uma tecla para voltar ao menu principal");
         Console.ReadKey();
