@@ -9,8 +9,9 @@ opcoes.Add(2, RegistrarMusica);
 opcoes.Add(3, MostrarArtistas);
 opcoes.Add(4, MostrarMusicas);
 opcoes.Add(5, TestarConexaoBanco);
-opcoes.Add(6, AtualizarArtista);  // Nova opção para atualizar
-opcoes.Add(7, ExcluirArtista);    // Nova opção para excluir
+opcoes.Add(6, AtualizarArtista);
+opcoes.Add(7, ExcluirArtista);
+opcoes.Add(8, RecuperarArtistaPeloNome); // Nova opção para buscar pelo nome
 opcoes.Add(-1, Sair);
 
 void ExibirLogo()
@@ -36,6 +37,7 @@ void ExibirOpcoesDoMenu()
     Console.WriteLine("Digite 5 para testar a conexão com o banco de dados");
     Console.WriteLine("Digite 6 para atualizar um artista");
     Console.WriteLine("Digite 7 para excluir um artista");
+    Console.WriteLine("Digite 8 para buscar um artista pelo nome"); // Nova opção
     Console.WriteLine("Digite -1 para sair");
 
     Console.Write("\nDigite a sua opção: ");
@@ -68,9 +70,8 @@ void RegistrarArtista()
 
     var artista = new Artista(nome, bio) { FotoPerfil = fotoPerfil };
 
-    using var context = new ScreenSoundContext();
-    context.Artistas.Add(artista);
-    context.SaveChanges();
+    var artistaDAL = new ArtistaDAL();
+    artistaDAL.Adicionar(artista);
     Console.WriteLine("Artista registrado com sucesso!");
 }
 
@@ -90,21 +91,11 @@ void AtualizarArtista()
     Console.Write("Digite a nova URL da foto de perfil do artista: ");
     string fotoPerfil = Console.ReadLine()!;
 
-    using var context = new ScreenSoundContext();
-    var artistaExistente = context.Artistas.Find(id);
-    if (artistaExistente != null)
-    {
-        artistaExistente.Nome = nome;
-        artistaExistente.Bio = bio;
-        artistaExistente.FotoPerfil = fotoPerfil;
+    var artista = new Artista(nome, bio) { Id = id, FotoPerfil = fotoPerfil };
 
-        context.SaveChanges();
-        Console.WriteLine("Artista atualizado com sucesso!");
-    }
-    else
-    {
-        Console.WriteLine("Artista não encontrado.");
-    }
+    var artistaDAL = new ArtistaDAL();
+    artistaDAL.Atualizar(artista);
+    Console.WriteLine("Artista atualizado com sucesso!");
 }
 
 void ExcluirArtista()
@@ -114,18 +105,9 @@ void ExcluirArtista()
     Console.Write("Digite o ID do artista a ser excluído: ");
     int id = int.Parse(Console.ReadLine()!);
 
-    using var context = new ScreenSoundContext();
-    var artista = context.Artistas.Find(id);
-    if (artista != null)
-    {
-        context.Artistas.Remove(artista);
-        context.SaveChanges();
-        Console.WriteLine("Artista excluído com sucesso!");
-    }
-    else
-    {
-        Console.WriteLine("Artista não encontrado.");
-    }
+    var artistaDAL = new ArtistaDAL();
+    artistaDAL.Deletar(id);
+    Console.WriteLine("Artista excluído com sucesso!");
 }
 
 void RegistrarMusica()
@@ -138,8 +120,8 @@ void MostrarArtistas()
 {
     Console.WriteLine("Mostrar Artistas selecionado.");
 
-    using var context = new ScreenSoundContext();
-    IEnumerable<Artista> artistas = context.Artistas.ToList();
+    var artistaDAL = new ArtistaDAL();
+    IEnumerable<Artista> artistas = artistaDAL.Listar();
 
     foreach (var artista in artistas)
     {
@@ -164,6 +146,26 @@ void TestarConexaoBanco()
     else
     {
         Console.WriteLine("Falha ao conectar ao banco de dados.");
+    }
+}
+
+void RecuperarArtistaPeloNome()
+{
+    Console.WriteLine("Buscar Artista pelo Nome selecionado.");
+
+    Console.Write("Digite o nome do artista: ");
+    string nome = Console.ReadLine()!;
+
+    var artistaDAL = new ArtistaDAL();
+    var artista = artistaDAL.RecuperarPeloNome(nome);
+
+    if (artista != null)
+    {
+        Console.WriteLine($"Artista encontrado: {artista.Nome}, Bio: {artista.Bio}, Foto de Perfil: {artista.FotoPerfil}");
+    }
+    else
+    {
+        Console.WriteLine("Artista não encontrado.");
     }
 }
 
