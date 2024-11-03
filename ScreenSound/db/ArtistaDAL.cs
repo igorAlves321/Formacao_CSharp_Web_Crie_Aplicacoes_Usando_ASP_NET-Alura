@@ -2,39 +2,42 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ScreenSound.db;
-
+namespace ScreenSound.db
+{
     public class ArtistaDAL
     {
-        // Método para adicionar um novo artista ao banco de dados
+        private readonly ScreenSoundContext _context;
+
+        // Construtor que aceita uma instância de ScreenSoundContext
+        public ArtistaDAL(ScreenSoundContext context)
+        {
+            _context = context;
+        }
+
+        // Método para adicionar um novo artista
         public void Adicionar(Artista artista)
         {
-            using var context = new ScreenSoundContext();
-            context.Artistas.Add(artista);
-            context.SaveChanges();
+            _context.Artistas.Add(artista);
+            _context.SaveChanges();
             Console.WriteLine("Artista adicionado com sucesso!");
         }
 
         // Método para listar todos os artistas
         public IEnumerable<Artista> Listar()
         {
-            using var context = new ScreenSoundContext();
-            return context.Artistas.ToList();
+            return _context.Artistas.ToList();
         }
 
         // Método para atualizar um artista existente
         public void Atualizar(Artista artista)
         {
-            using var context = new ScreenSoundContext();
-
-            var artistaExistente = context.Artistas.Find(artista.Id); // Busca o artista pelo Id
+            var artistaExistente = _context.Artistas.Find(artista.Id);
             if (artistaExistente != null)
             {
                 artistaExistente.Nome = artista.Nome;
                 artistaExistente.Bio = artista.Bio;
                 artistaExistente.FotoPerfil = artista.FotoPerfil;
-
-                context.SaveChanges();
+                _context.SaveChanges();
                 Console.WriteLine("Artista atualizado com sucesso!");
             }
             else
@@ -46,13 +49,11 @@ namespace ScreenSound.db;
         // Método para deletar um artista
         public void Deletar(int id)
         {
-            using var context = new ScreenSoundContext();
-
-            var artista = context.Artistas.Find(id); // Busca o artista pelo Id
+            var artista = _context.Artistas.Find(id);
             if (artista != null)
             {
-                context.Artistas.Remove(artista);
-                context.SaveChanges();
+                _context.Artistas.Remove(artista);
+                _context.SaveChanges();
                 Console.WriteLine("Artista deletado com sucesso!");
             }
             else
@@ -64,12 +65,7 @@ namespace ScreenSound.db;
         // Método para recuperar um artista pelo nome
         public Artista? RecuperarPeloNome(string nome)
         {
-            using var context = new ScreenSoundContext();
-
-            // Busca o primeiro artista cujo nome corresponda ao valor passado
-            var artista = context.Artistas.FirstOrDefault(a => a.Nome == nome);
-
-            return artista;
+            return _context.Artistas.FirstOrDefault(a => a.Nome == nome);
         }
     }
-
+}

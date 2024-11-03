@@ -3,7 +3,7 @@ using ScreenSound.db;
 
 namespace ScreenSound.Menus;
 
-internal class Menu
+public class Menu
 {
     public void ExibirTituloDaOpcao(string titulo)
     {
@@ -14,10 +14,10 @@ internal class Menu
         Console.WriteLine(asteriscos + "\n");
     }
 
-    // Alterado para aceitar ArtistaDAL como parâmetro em vez de um dicionário
-    public virtual void Executar(ArtistaDAL artistaDAL)
+    // Alterado para aceitar tanto ArtistaDAL quanto MusicaDAL como parâmetros
+    public virtual void Executar(ArtistaDAL artistaDAL, MusicaDAL musicaDAL)
     {
         Console.Clear();
-        // Aqui você pode chamar métodos do ArtistaDAL, se necessário
+        // Aqui você pode chamar métodos de ArtistaDAL ou MusicaDAL, se necessário
     }
 }

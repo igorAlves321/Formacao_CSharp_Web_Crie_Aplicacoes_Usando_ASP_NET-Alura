@@ -6,9 +6,9 @@ namespace ScreenSound.Menus;
 
 public class MenuRegistrarArtista : Menu
 {
-    public override void Executar(ArtistaDAL artistaDAL)
+    public override void Executar(ArtistaDAL artistaDAL, MusicaDAL musicaDAL)
     {
-        base.Executar(artistaDAL);
+        base.Executar(artistaDAL, musicaDAL); // Chama base com os dois parâmetros
         ExibirTituloDaOpcao("Registro dos Artistas");
 
         Console.Write("Digite o nome do artista que deseja registrar: ");
