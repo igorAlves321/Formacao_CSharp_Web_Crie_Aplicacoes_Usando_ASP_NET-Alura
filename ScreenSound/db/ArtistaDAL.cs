@@ -1,56 +1,66 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Microsoft.EntityFrameworkCore;
 using ScreenSound.Modelos;
-using ScreenSound.db;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace ScreenSound.db
+namespace ScreenSound.db;
+
+public class ArtistaDAL
 {
-    public class ArtistaDAL
+    // Método para adicionar um novo artista ao banco de dados
+    public void Adicionar(Artista artista)
     {
-        // Método para adicionar um novo artista ao banco de dados
-        public void Adicionar(Artista artista)
+        using var context = new ScreenSoundContext();
+
+        context.Artistas.Add(artista);
+        context.SaveChanges();
+        Console.WriteLine("Artista adicionado com sucesso!");
+    }
+
+    // Método para listar todos os artistas
+    public IEnumerable<Artista> Listar()
+    {
+        using var context = new ScreenSoundContext();
+
+        return context.Artistas.ToList(); // Usa EF Core para listar todos os artistas
+    }
+
+    // Método para atualizar um artista existente
+    public void Atualizar(Artista artista)
+    {
+        using var context = new ScreenSoundContext();
+
+        var artistaExistente = context.Artistas.Find(artista.Id); // Busca o artista pelo Id
+        if (artistaExistente != null)
         {
-            using var connection = new Connection().GetConnection();
+            artistaExistente.Nome = artista.Nome;
+            artistaExistente.Bio = artista.Bio;
+            artistaExistente.FotoPerfil = artista.FotoPerfil;
 
-            string sql = "INSERT INTO Artistas (Nome, FotoPerfil, Bio) VALUES (@nome, @fotoPerfil, @bio)";
-            MySqlCommand command = new MySqlCommand(sql, connection);
-
-            // Adiciona parâmetros para evitar SQL Injection
-            command.Parameters.AddWithValue("@nome", artista.Nome);
-            command.Parameters.AddWithValue("@fotoPerfil", artista.FotoPerfil);
-            command.Parameters.AddWithValue("@bio", artista.Bio);
-
-            int linhasAfetadas = command.ExecuteNonQuery();
-            Console.WriteLine($"Linhas afetadas: {linhasAfetadas}");
+            context.SaveChanges(); // Salva as alterações no banco de dados
+            Console.WriteLine("Artista atualizado com sucesso!");
         }
-
-        // Método para listar todos os artistas
-        public IEnumerable<Artista> Listar()
+        else
         {
-            var lista = new List<Artista>();
+            Console.WriteLine("Artista não encontrado.");
+        }
+    }
 
-            using var connection = new Connection().GetConnection();
-            if (connection != null)
-            {
-                string sql = "SELECT Nome, FotoPerfil, Bio FROM Artistas";
-                MySqlCommand command = new MySqlCommand(sql, connection);
+    // Método para deletar um artista
+    public void Deletar(int id)
+    {
+        using var context = new ScreenSoundContext();
 
-                using MySqlDataReader dataReader = command.ExecuteReader();
-                while (dataReader.Read())
-                {
-                    string nome = dataReader["Nome"].ToString();
-                    string bio = dataReader["Bio"].ToString();
-                    string fotoPerfil = dataReader["FotoPerfil"].ToString();
-
-                    var artista = new Artista(nome, bio)
-                    {
-                        FotoPerfil = fotoPerfil
-                    };
-
-                    lista.Add(artista);
-                }
-            }
-
-            return lista;
+        var artista = context.Artistas.Find(id); // Busca o artista pelo Id
+        if (artista != null)
+        {
+            context.Artistas.Remove(artista); // Remove o artista do contexto
+            context.SaveChanges(); // Salva as alterações no banco de dados
+            Console.WriteLine("Artista deletado com sucesso!");
+        }
+        else
+        {
+            Console.WriteLine("Artista não encontrado.");
         }
     }
 }
