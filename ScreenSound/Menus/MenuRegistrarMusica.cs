@@ -1,36 +1,26 @@
 ﻿using ScreenSound.Modelos;
 using ScreenSound.db;
+using System;
 
 namespace ScreenSound.Menus;
 
-internal class MenuRegistrarMusica : Menu
-{
-    public override void Executar(ArtistaDAL artistaDAL)
+    public class MenuRegistrarMusica : Menu
     {
-        base.Executar(artistaDAL);
-        ExibirTituloDaOpcao("Registro de músicas");
-
-        Console.Write("Digite o artista cuja música deseja registrar: ");
-        string nomeDoArtista = Console.ReadLine()!;
-
-        // Recupera o artista pelo nome usando ArtistaDAL
-        var artistaRecuperado = artistaDAL.RecuperarPeloNome(nomeDoArtista);
-
-        if (artistaRecuperado is not null)
+        public override void Executar(MusicaDAL musicaDAL, ArtistaDAL artistaDAL)
         {
-            Console.Write("Agora digite o título da música: ");
+            base.Executar(musicaDAL);
+            ExibirTituloDaOpcao("Registro de músicas");
+
+            Console.Write("Digite o título da música que deseja registrar: ");
             string tituloDaMusica = Console.ReadLine()!;
-            artistaRecuperado.AdicionarMusica(new Musica(tituloDaMusica));
-            Console.WriteLine($"A música '{tituloDaMusica}' de '{nomeDoArtista}' foi registrada com sucesso!");
-            Thread.Sleep(4000);
-            Console.Clear();
-        }
-        else
-        {
-            Console.WriteLine($"\nO artista '{nomeDoArtista}' não foi encontrado!");
-            Console.WriteLine("Digite uma tecla para voltar ao menu principal");
+
+            var musica = new Musica(tituloDaMusica);
+            musicaDAL.Adicionar(musica);
+
+            Console.WriteLine($"A música '{tituloDaMusica}' foi registrada com sucesso!");
+            Console.WriteLine("\nPressione uma tecla para voltar ao menu principal");
             Console.ReadKey();
             Console.Clear();
         }
     }
-}
+

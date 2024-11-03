@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using ScreenSound.Modelos;
+﻿using ScreenSound.Modelos;
 using System.Collections.Generic;
 using System.Linq;
 
