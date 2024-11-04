@@ -25,7 +25,23 @@ Func<Musica> criarMusica = () =>
 {
     Console.Write("Digite o título da música: ");
     var titulo = Console.ReadLine() ?? "";
-    return new Musica(titulo);
+    Console.Write("Digite o ano de lançamento: ");
+    int.TryParse(Console.ReadLine(), out int anoLancamento);
+
+    Console.Write("Digite o nome do artista: ");
+    var nomeArtista = Console.ReadLine() ?? "";
+    var artista = new DAL<Artista>(context).RecuperarPor(a => a.Nome == nomeArtista);
+
+    var musica = new Musica(titulo) { AnoLancamento = anoLancamento };
+    if (artista != null)
+    {
+        musica.Artista = artista;
+    }
+    else
+    {
+        Console.WriteLine("Artista não encontrado. A música será registrada sem um artista associado.");
+    }
+    return musica;
 };
 
 // Instancia os menus genéricos para Artista e Musica

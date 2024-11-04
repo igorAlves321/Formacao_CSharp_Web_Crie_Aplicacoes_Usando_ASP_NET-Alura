@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 
 namespace ScreenSound.db;
@@ -14,9 +15,17 @@ namespace ScreenSound.db;
             this.context = context;
         }
 
-        public IEnumerable<T> Listar()
+        public IEnumerable<T> Listar(params Expression<Func<T, object>>[] includes)
         {
-            return context.Set<T>().ToList();
+            IQueryable<T> query = context.Set<T>();
+
+            // Adiciona as entidades relacionadas especificadas em 'includes'
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+
+            return query.ToList();
         }
 
         public void Adicionar(T objeto)
@@ -37,9 +46,16 @@ namespace ScreenSound.db;
             context.SaveChanges();
         }
 
-        public T? RecuperarPor(Func<T, bool> condicao)
+        public T? RecuperarPor(Func<T, bool> condicao, params Expression<Func<T, object>>[] includes)
         {
-            return context.Set<T>().FirstOrDefault(condicao);
+            IQueryable<T> query = context.Set<T>();
+
+            // Adiciona as entidades relacionadas especificadas em 'includes'
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+
+            return query.FirstOrDefault(condicao);
         }
     }
-
