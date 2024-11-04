@@ -3,7 +3,7 @@
     public class Artista
     {
         // Propriedade pública para MusicList, necessária para o Entity Framework Core
-        public List<Musica> Musicas { get; set; } = new List<Musica>();
+public ICollection<Musica> Musicas { get; set; } = new List<Musica>();
 
         public Artista(string nome, string bio)
         {
@@ -16,6 +16,7 @@
         public string Nome { get; set; }
         public string FotoPerfil { get; set; }
         public string Bio { get; set; }
+
 
         public void AdicionarMusica(Musica musica)
         {

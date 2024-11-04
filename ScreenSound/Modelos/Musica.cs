@@ -9,18 +9,24 @@ public class Musica
 
     public string Nome { get; set; }
     public int Id { get; set; }
-    public int AnoLancamento { get; set; } // Nova propriedade para o ano de lançamento
+    public int? AnoLancamento { get; set; }
+    public int? ArtistaId { get; set; }
+    public Artista? Artista { get; set; }
 
     public void ExibirFichaTecnica()
     {
         Console.WriteLine($"Nome: {Nome}");
-        Console.WriteLine($"Ano de Lançamento: {AnoLancamento}"); // Exibe o ano de lançamento
+        Console.WriteLine($"Ano de Lançamento: {AnoLancamento}");
+        if (Artista != null)
+        {
+            Console.WriteLine($"Artista: {Artista.Nome}");
+        }
     }
 
     public override string ToString()
     {
         return @$"Id: {Id}
         Nome: {Nome}
-        Ano de Lançamento: {AnoLancamento}"; // Adiciona o ano de lançamento na exibição
+        Ano de Lançamento: {AnoLancamento}";
     }
 }
