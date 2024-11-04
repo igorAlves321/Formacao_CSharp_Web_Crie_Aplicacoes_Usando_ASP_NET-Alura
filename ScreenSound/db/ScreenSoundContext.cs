@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ScreenSound.Modelos;
 
-namespace ScreenSound.db;
-
+namespace ScreenSound.db
+{
     public class ScreenSoundContext : DbContext
     {
         public DbSet<Artista> Artistas { get; set; }
@@ -16,12 +16,14 @@ namespace ScreenSound.db;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            // Configure o banco de dados apenas se as opções ainda não estiverem configuradas
+            // Configure o banco de dados e habilite o proxy de carregamento lento apenas se ainda não configurado
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseMySql("server=localhost;database=ScreenSound;user=root;password=;port=3306", 
-                    new MySqlServerVersion(new Version(8, 0, 26)));
+                optionsBuilder
+                    .UseMySql("server=localhost;database=ScreenSound;user=root;password=;port=3306", 
+                              new MySqlServerVersion(new Version(8, 0, 26)))
+                    .UseLazyLoadingProxies(); // Habilita o lazy loading para carregamento automático das relações
             }
         }
     }
-
+}

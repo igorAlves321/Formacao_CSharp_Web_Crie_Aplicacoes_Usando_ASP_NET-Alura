@@ -1,87 +1,22 @@
-﻿using Microsoft.EntityFrameworkCore;
-using ScreenSound.db;
+﻿using ScreenSound.db;
 using ScreenSound.Menus;
 using ScreenSound.Modelos;
-using System;
-using System.Collections.Generic;
 
-var optionsBuilder = new DbContextOptionsBuilder<ScreenSoundContext>();
-optionsBuilder.UseMySql("server=localhost;database=ScreenSound;user=root;password=;port=3306", 
-    new MySqlServerVersion(new Version(8, 0, 26)));
+var context = new ScreenSoundContext();
+var artistaDAL = new DAL<Artista>(context);
 
-var context = new ScreenSoundContext(optionsBuilder.Options);
-
-// Funções para criar novos objetos de Artista e Musica
-Func<Artista> criarArtista = () => 
-{
-    Console.Write("Digite o nome do artista: ");
-    var nome = Console.ReadLine() ?? "";
-    Console.Write("Digite a bio do artista: ");
-    var bio = Console.ReadLine() ?? "";
-    return new Artista(nome, bio);
-};
-
-Func<Musica> criarMusica = () => 
-{
-    Console.Write("Digite o título da música: ");
-    var titulo = Console.ReadLine() ?? "";
-    Console.Write("Digite o ano de lançamento: ");
-    int.TryParse(Console.ReadLine(), out int anoLancamento);
-
-    Console.Write("Digite o nome do artista: ");
-    var nomeArtista = Console.ReadLine() ?? "";
-    var artista = new DAL<Artista>(context).RecuperarPor(a => a.Nome == nomeArtista);
-
-    var musica = new Musica(titulo) { AnoLancamento = anoLancamento };
-    if (artista != null)
-    {
-        musica.Artista = artista;
-    }
-    else
-    {
-        Console.WriteLine("Artista não encontrado. A música será registrada sem um artista associado.");
-    }
-    return musica;
-};
-
-// Instancia os menus genéricos para Artista e Musica
-var menuArtistas = new MenuBase<Artista>(new DAL<Artista>(context), criarArtista);
-var menuMusicas = new MenuBase<Musica>(new DAL<Musica>(context), criarMusica);
-
-// Configuração do menu com as opções
-Dictionary<int, Action> opcoes = new()
-{
-    { 1, menuArtistas.Registrar },
-    { 2, menuMusicas.Registrar },
-    { 3, menuArtistas.ListarTodos },
-    { 4, menuMusicas.ListarTodos },
-    { -1, Sair }
-};
-
-void ExibirOpcoesDoMenu()
-{
-    ExibirLogo();
-    Console.WriteLine("\nDigite 1 para registrar um artista");
-    Console.WriteLine("Digite 2 para registrar uma música");
-    Console.WriteLine("Digite 3 para mostrar todos os artistas");
-    Console.WriteLine("Digite 4 para exibir todas as músicas");
-    Console.WriteLine("Digite -1 para sair");
-
-    Console.Write("\nDigite a sua opção: ");
-    if (int.TryParse(Console.ReadLine(), out int opcaoEscolhidaNumerica) && opcoes.ContainsKey(opcaoEscolhidaNumerica))
-    {
-        opcoes[opcaoEscolhidaNumerica].Invoke();
-        if (opcaoEscolhidaNumerica > 0) ExibirOpcoesDoMenu();
-    }
-    else
-    {
-        Console.WriteLine("Opção inválida");
-    }
-}
+Dictionary<int, Menu> opcoes = new();
+opcoes.Add(1, new MenuRegistrarArtista());
+opcoes.Add(2, new MenuRegistrarMusica());
+opcoes.Add(3, new MenuMostrarArtistas());
+opcoes.Add(4, new MenuMostrarMusicas());
+opcoes.Add(5, new MenuMostrarMusicasPorAno());
+opcoes.Add(-1, new MenuSair());
 
 void ExibirLogo()
 {
     Console.WriteLine(@"
+
 ░██████╗░█████╗░██████╗░███████╗███████╗███╗░░██╗  ░██████╗░█████╗░██╗░░░██╗███╗░░██╗██████╗░
 ██╔════╝██╔══██╗██╔══██╗██╔════╝██╔════╝████╗░██║  ██╔════╝██╔══██╗██║░░░██║████╗░██║██╔══██╗
 ╚█████╗░██║░░╚═╝██████╔╝█████╗░░█████╗░░██╔██╗██║  ╚█████╗░██║░░██║██║░░░██║██╔██╗██║██║░░██║
@@ -92,10 +27,30 @@ void ExibirLogo()
     Console.WriteLine("Boas vindas ao Screen Sound 3.0!");
 }
 
-void Sair()
+void ExibirOpcoesDoMenu()
 {
-    Console.WriteLine("Saindo da aplicação. Até mais!");
-    Environment.Exit(0);
+    ExibirLogo();
+    Console.WriteLine("\nDigite 1 para registrar um artista");
+    Console.WriteLine("Digite 2 para registrar a música de um artista");
+    Console.WriteLine("Digite 3 para mostrar todos os artistas");
+    Console.WriteLine("Digite 4 para exibir todas as músicas de um artista");
+    Console.WriteLine("Digite 5 para exibir as músicas por ano de lançamento");
+    Console.WriteLine("Digite -1 para sair");
+
+    Console.Write("\nDigite a sua opção: ");
+    string opcaoEscolhida = Console.ReadLine()!;
+    int opcaoEscolhidaNumerica = int.Parse(opcaoEscolhida);
+
+    if (opcoes.ContainsKey(opcaoEscolhidaNumerica))
+    {
+        Menu menuASerExibido = opcoes[opcaoEscolhidaNumerica];
+        menuASerExibido.Executar(artistaDAL);
+        if (opcaoEscolhidaNumerica > 0) ExibirOpcoesDoMenu();
+    } 
+    else
+    {
+        Console.WriteLine("Opção inválida");
+    }
 }
 
 ExibirOpcoesDoMenu();
