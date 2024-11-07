@@ -1,44 +1,55 @@
+using ScreenSound.db;
+using ScreenSound.Modelos;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Configuração para ignorar referências cíclicas
+builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
+    options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
+// Configurações de serviços
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configuração do Swagger
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
-var summaries = new[]
+// Endpoint para adicionar um artista
+app.MapPost("/artistas", ([FromBody] Artista artista) =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
+    var dal = new DAL<Artista>(new ScreenSoundContext());
+    dal.Adicionar(artista);
+    return Results.Ok();
 })
-.WithName("GetWeatherForecast")
-.WithOpenApi();
+.WithName("AddArtista");
+
+// Endpoint para listar todos os artistas
+app.MapGet("/artistas", () =>
+{
+    var dal = new DAL<Artista>(new ScreenSoundContext());
+    return Results.Ok(dal.Listar());
+})
+.WithName("GetArtistas");
+
+// Endpoint para buscar um artista pelo nome
+app.MapGet("/artistas/{nome}", (string nome) =>
+{
+    var dal = new DAL<Artista>(new ScreenSoundContext());
+    var artista = dal.RecuperarPor(a => a.Nome.ToUpper().Equals(nome.ToUpper()));
+    if (artista is null)
+    {
+        return Results.NotFound();
+    }
+    return Results.Ok(artista);
+})
+.WithName("GetArtistaByName");
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
