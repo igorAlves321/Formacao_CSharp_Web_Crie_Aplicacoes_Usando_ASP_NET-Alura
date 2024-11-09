@@ -1,8 +1,9 @@
 ﻿using ScreenSound.db;
 using ScreenSound.Modelos;
+using ScreenSound.API.Requests; // Importando MusicaRequest
 using Microsoft.AspNetCore.Mvc;
 
-namespace ScreenSound.API.controle;
+namespace ScreenSound.API.Controle;
 
 public static class MusicasExtensions
 {
@@ -22,16 +23,26 @@ public static class MusicasExtensions
                 return Results.NotFound();
             }
             return Results.Ok(musica);
-
         });
 
-        app.MapPost("/Musicas", ([FromServices] DAL<Musica> dal, [FromBody] Musica musica) =>
+        // Modificação: Usando MusicaRequest em vez de Musica
+        app.MapPost("/Musicas", ([FromServices] DAL<Musica> dal, [FromBody] MusicaRequest musicaRequest) =>
         {
-            dal.Adicionar(musica);
+            // Criando um novo objeto Musica usando os dados de MusicaRequest
+            var novaMusica = new Musica
+            {
+                Nome = musicaRequest.Nome,
+                ArtistaId = musicaRequest.ArtistaId,
+                AnoLancamento = musicaRequest.AnoLancamento
+            };
+
+            // Adicionando a nova música na base de dados
+            dal.Adicionar(novaMusica);
             return Results.Ok();
         });
 
-        app.MapDelete("/Musicas/{id}", ([FromServices] DAL<Musica> dal, int id) => {
+        app.MapDelete("/Musicas/{id}", ([FromServices] DAL<Musica> dal, int id) =>
+        {
             var musica = dal.RecuperarPor(a => a.Id == id);
             if (musica is null)
             {
@@ -39,10 +50,10 @@ public static class MusicasExtensions
             }
             dal.Deletar(musica);
             return Results.NoContent();
-
         });
 
-        app.MapPut("/Musicas", ([FromServices] DAL<Musica> dal, [FromBody] Musica musica) => {
+        app.MapPut("/Musicas", ([FromServices] DAL<Musica> dal, [FromBody] Musica musica) =>
+        {
             var musicaAAtualizar = dal.RecuperarPor(a => a.Id == musica.Id);
             if (musicaAAtualizar is null)
             {
@@ -55,6 +66,5 @@ public static class MusicasExtensions
             return Results.Ok();
         });
         #endregion
-
     }
 }

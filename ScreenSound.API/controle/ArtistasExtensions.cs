@@ -1,14 +1,14 @@
 ﻿using ScreenSound.db;
 using ScreenSound.Modelos;
 using Microsoft.AspNetCore.Mvc;
+using ScreenSound.API.Requests;
 
-namespace ScreenSound.API.controle;
+namespace ScreenSound.API.Controle;
 
 public static class ArtistasExtensions
 {
     public static void AddEndPointsArtistas(this WebApplication app)
     {
-
         #region Endpoint Artistas
         app.MapGet("/Artistas", ([FromServices] DAL<Artista> dal) =>
         {
@@ -23,12 +23,16 @@ public static class ArtistasExtensions
                 return Results.NotFound();
             }
             return Results.Ok(artista);
-
         });
 
-        app.MapPost("/Artistas", ([FromServices] DAL<Artista> dal, [FromBody] Artista artista) =>
+        // Modificação: Usando ArtistaRequest em vez de Artista
+        app.MapPost("/Artistas", ([FromServices] DAL<Artista> dal, [FromBody] ArtistaRequest artistaRequest) =>
         {
-            dal.Adicionar(artista);
+            // Criando um novo objeto Artista usando os dados de ArtistaRequest
+            var novoArtista = new Artista(artistaRequest.nome, artistaRequest.bio);
+
+            // Adicionando o novo artista na base de dados
+            dal.Adicionar(novoArtista);
             return Results.Ok();
         });
 
@@ -40,7 +44,6 @@ public static class ArtistasExtensions
             }
             dal.Deletar(artista);
             return Results.NoContent();
-
         });
 
         app.MapPut("/Artistas", ([FromServices] DAL<Artista> dal, [FromBody] Artista artista) => {

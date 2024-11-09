@@ -1,8 +1,7 @@
+using ScreenSound.API.Controle;
 using ScreenSound.db;
 using ScreenSound.Modelos;
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Mvc;
-using ScreenSound.API.controle;
 
 var builder = WebApplication.CreateBuilder(args);
 
