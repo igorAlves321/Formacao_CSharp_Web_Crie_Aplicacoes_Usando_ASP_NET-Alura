@@ -7,7 +7,7 @@ namespace ScreenSound.db;
     {
         public DbSet<Artista> Artistas { get; set; }
         public DbSet<Musica> Musicas { get; set; }
-public DbSet<Genero> Generos { get; set; }
+        public DbSet<Genero> Generos { get; set; }
 
         // Construtor que recebe as opções, usado principalmente no tempo de execução
         public ScreenSoundContext(DbContextOptions<ScreenSoundContext> options) : base(options) { }
@@ -21,10 +21,21 @@ public DbSet<Genero> Generos { get; set; }
             if (!optionsBuilder.IsConfigured)
             {
                 optionsBuilder
-                    .UseMySql("server=localhost;database=ScreenSound;user=root;password=;port=3306", 
+                    .UseMySql("server=localhost;database=ScreenSound;user=root;password=;port=3306",
                               new MySqlServerVersion(new Version(8, 0, 26)))
                     .UseLazyLoadingProxies(); // Habilita o lazy loading para carregamento automático das relações
             }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // Configurando o relacionamento muitos-para-muitos entre Musica e Genero
+            modelBuilder.Entity<Musica>()
+                .HasMany(m => m.Generos)
+                .WithMany(g => g.Musicas)
+                .UsingEntity(j => j.ToTable("MusicaGenero")); // Nome da tabela de junção
+
+            base.OnModelCreating(modelBuilder);
         }
     }
 
