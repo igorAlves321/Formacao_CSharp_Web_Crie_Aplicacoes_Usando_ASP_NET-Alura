@@ -13,9 +13,9 @@ builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =
 // Configurações de serviços e injeção de dependência
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<ScreenSoundContext>();  // Injeção do contexto do banco de dados
-builder.Services.AddTransient<DAL<Artista>>();        // Injeção do DAL para Artista
-builder.Services.AddTransient<DAL<Musica>>();         // Injeção do DAL para Musica
+builder.Services.AddDbContext<ScreenSoundContext>();
+builder.Services.AddTransient<DAL<Artista>>();
+builder.Services.AddTransient<DAL<Musica>>();
 
 var app = builder.Build();
 
