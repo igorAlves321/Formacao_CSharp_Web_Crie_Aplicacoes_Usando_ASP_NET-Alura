@@ -2,6 +2,7 @@ using ScreenSound.db;
 using ScreenSound.Modelos;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
+using ScreenSound.API.controle;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,9 +10,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
     options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
-// Configurações de serviços
+// Configurações de serviços e injeção de dependência
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddDbContext<ScreenSoundContext>();  // Injeção do contexto do banco de dados
+builder.Services.AddTransient<DAL<Artista>>();        // Injeção do DAL para Artista
+builder.Services.AddTransient<DAL<Musica>>();         // Injeção do DAL para Musica
 
 var app = builder.Build();
 
@@ -22,34 +26,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Endpoint para adicionar um artista
-app.MapPost("/artistas", ([FromBody] Artista artista) =>
-{
-    var dal = new DAL<Artista>(new ScreenSoundContext());
-    dal.Adicionar(artista);
-    return Results.Ok();
-})
-.WithName("AddArtista");
-
-// Endpoint para listar todos os artistas
-app.MapGet("/artistas", () =>
-{
-    var dal = new DAL<Artista>(new ScreenSoundContext());
-    return Results.Ok(dal.Listar());
-})
-.WithName("GetArtistas");
-
-// Endpoint para buscar um artista pelo nome
-app.MapGet("/artistas/{nome}", (string nome) =>
-{
-    var dal = new DAL<Artista>(new ScreenSoundContext());
-    var artista = dal.RecuperarPor(a => a.Nome.ToUpper().Equals(nome.ToUpper()));
-    if (artista is null)
-    {
-        return Results.NotFound();
-    }
-    return Results.Ok(artista);
-})
-.WithName("GetArtistaByName");
+// Chamando os métodos de extensão para adicionar os endpoints
+app.AddEndPointsArtistas();
+app.AddEndPointsMusicas();
 
 app.Run();
