@@ -26,14 +26,20 @@ public static class MusicasExtensions
         });
 
         // Modificação: Usando MusicaRequest em vez de Musica
-        app.MapPost("/Musicas", ([FromServices] DAL<Musica> dal, [FromBody] MusicaRequest musicaRequest) =>
+        app.MapPost("/Musicas", ([FromServices] DAL<Musica> dal, [FromServices] DAL<Artista> dalArtista, [FromBody] MusicaRequest musicaRequest) =>
         {
-            // Criando um novo objeto Musica usando os dados de MusicaRequest
-            var novaMusica = new Musica
+            // Recuperando o artista com base no Id fornecido
+            var artista = dalArtista.RecuperarPor(a => a.Id == musicaRequest.ArtistaId);
+            if (artista is null)
             {
-                Nome = musicaRequest.Nome,
-                ArtistaId = musicaRequest.ArtistaId,
-                AnoLancamento = musicaRequest.AnoLancamento
+                return Results.NotFound("Artista não encontrado.");
+            }
+
+            // Criando um novo objeto Musica usando os dados de MusicaRequest
+            var novaMusica = new Musica(musicaRequest.Nome)
+            {
+                AnoLancamento = musicaRequest.AnoLancamento,
+                Artista = artista // Associando o artista à música
             };
 
             // Adicionando a nova música na base de dados
