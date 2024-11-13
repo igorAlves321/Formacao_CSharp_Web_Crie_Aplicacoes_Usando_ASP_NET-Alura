@@ -1,32 +1,30 @@
-using ScreenSound.API.Controle;
-using ScreenSound.db;
+using Microsoft.AspNetCore.Mvc;
+using ScreenSound.API.Endpoints;
+using ScreenSound.Banco;
 using ScreenSound.Modelos;
+using ScreenSound.Shared.Modelos.Modelos;
+using System.Data.SqlTypes;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuração para ignorar referências cíclicas
-builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
-    options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
-
-// Configurações de serviços e injeção de dependência
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ScreenSoundContext>();
 builder.Services.AddTransient<DAL<Artista>>();
 builder.Services.AddTransient<DAL<Musica>>();
+builder.Services.AddTransient<DAL<Genero>>();
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
 var app = builder.Build();
 
-// Configuração do Swagger
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-// Chamando os métodos de extensão para adicionar os endpoints
 app.AddEndPointsArtistas();
 app.AddEndPointsMusicas();
+app.AddEndPointGeneros();
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.Run();

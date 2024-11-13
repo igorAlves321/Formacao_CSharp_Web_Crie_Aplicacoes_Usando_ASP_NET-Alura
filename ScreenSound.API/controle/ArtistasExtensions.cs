@@ -1,20 +1,26 @@
-﻿using ScreenSound.db;
-using ScreenSound.Modelos;
+﻿using Microsoft.AspNetCore.Mvc;
 using ScreenSound.API.Requests;
-using ScreenSound.API.Responses; // Importando os responses
-using Microsoft.AspNetCore.Mvc;
+using ScreenSound.API.Response;
+using ScreenSound.db;
+using ScreenSound.Modelos;
 
-namespace ScreenSound.API.Controle;
+namespace ScreenSound.API.controle;
 
 public static class ArtistasExtensions
 {
     public static void AddEndPointsArtistas(this WebApplication app)
     {
+
         #region Endpoint Artistas
         app.MapGet("/Artistas", ([FromServices] DAL<Artista> dal) =>
         {
-            var artistas = dal.Listar().Select(ArtistaResponse.FromEntity).ToList();
-            return Results.Ok(artistas);
+            var listaDeArtistas = dal.Listar();
+            if (listaDeArtistas is null)
+            {
+                return Results.NotFound();
+            }
+            var listaDeArtistaResponse = EntityListToResponseList(listaDeArtistas);
+            return Results.Ok(listaDeArtistaResponse);
         });
 
         app.MapGet("/Artistas/{nome}", ([FromServices] DAL<Artista> dal, string nome) =>
@@ -24,36 +30,19 @@ public static class ArtistasExtensions
             {
                 return Results.NotFound();
             }
-            return Results.Ok(ArtistaResponse.FromEntity(artista));
+            return Results.Ok(EntityToResponse(artista));
+
         });
 
         app.MapPost("/Artistas", ([FromServices] DAL<Artista> dal, [FromBody] ArtistaRequest artistaRequest) =>
         {
-            var novoArtista = new Artista(artistaRequest.Nome, artistaRequest.Bio);
-            dal.Adicionar(novoArtista);
-            return Results.Ok(ArtistaResponse.FromEntity(novoArtista));
+            var artista = new Artista(artistaRequest.nome, artistaRequest.bio);
+
+            dal.Adicionar(artista);
+            return Results.Ok();
         });
 
-        app.MapPut("/Artistas/{id}", ([FromServices] DAL<Artista> dal, int id, [FromBody] ArtistaRequestEdit artistaRequestEdit) =>
-        {
-            var artistaAEditar = dal.RecuperarPor(a => a.Id == id);
-            if (artistaAEditar is null)
-            {
-                return Results.NotFound();
-            }
-
-            // Atualizando apenas os campos fornecidos
-            if (!string.IsNullOrEmpty(artistaRequestEdit.Nome))
-                artistaAEditar.Nome = artistaRequestEdit.Nome;
-            if (!string.IsNullOrEmpty(artistaRequestEdit.Bio))
-                artistaAEditar.Bio = artistaRequestEdit.Bio;
-
-            dal.Atualizar(artistaAEditar);
-            return Results.Ok(ArtistaResponse.FromEntity(artistaAEditar));
-        });
-
-        app.MapDelete("/Artistas/{id}", ([FromServices] DAL<Artista> dal, int id) =>
-        {
+        app.MapDelete("/Artistas/{id}", ([FromServices] DAL<Artista> dal, int id) => {
             var artista = dal.RecuperarPor(a => a.Id == id);
             if (artista is null)
             {
@@ -61,7 +50,32 @@ public static class ArtistasExtensions
             }
             dal.Deletar(artista);
             return Results.NoContent();
+
+        });
+
+        app.MapPut("/Artistas", ([FromServices] DAL<Artista> dal, [FromBody] ArtistaRequestEdit artistaRequestEdit) => {
+            var artistaAAtualizar = dal.RecuperarPor(a => a.Id == artistaRequestEdit.Id);
+            if (artistaAAtualizar is null)
+            {
+                return Results.NotFound();
+            }
+            artistaAAtualizar.Nome = artistaRequestEdit.nome;
+            artistaAAtualizar.Bio = artistaRequestEdit.bio;        
+            dal.Atualizar(artistaAAtualizar);
+            return Results.Ok();
         });
         #endregion
     }
+
+    private static ICollection<ArtistaResponse> EntityListToResponseList(IEnumerable<Artista> listaDeArtistas)
+    {
+        return listaDeArtistas.Select(a => EntityToResponse(a)).ToList();
+    }
+
+    private static ArtistaResponse EntityToResponse(Artista artista)
+    {
+        return new ArtistaResponse(artista.Id, artista.Nome, artista.Bio, artista.FotoPerfil);
+    }
+
+  
 }
