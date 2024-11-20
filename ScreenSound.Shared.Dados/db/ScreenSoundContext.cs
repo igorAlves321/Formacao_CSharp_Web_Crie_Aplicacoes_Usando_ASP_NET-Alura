@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ScreenSound.Modelos;
+using ScreenSound.Shared.Modelos;
 
 namespace ScreenSound.db;
 
-    public class ScreenSoundContext : DbContext
+public class ScreenSoundContext : DbContext
     {
         public DbSet<Artista> Artistas { get; set; }
         public DbSet<Musica> Musicas { get; set; }

@@ -1,0 +1,35 @@
+﻿@page "/Artistas"
+@inject ArtistaAPI artistaAPI
+
+<h3>Artistas</h3>
+
+@if (artistas is not null)
+{
+    <MudGrid>
+        @foreach (var artista in artistas)
+        {
+            <MudItem xs="12" sm="6" md="4">
+                <MudCard>
+                    <MudCardMedia Image="@artista.FotoPerfil" Alt="@artista.Nome" />
+                    <MudCardContent>
+                        <MudText Typo="Typo.h6">@artista.Nome</MudText>
+                        <MudText Typo="Typo.body2">@artista.Bio</MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
+    </MudGrid>
+}
+else
+{
+    <MudText>Carregando artistas...</MudText>
+}
+
+@code {
+    private ICollection<ArtistaResponse>? artistas;
+
+    protected override async Task OnInitializedAsync()
+    {
+        artistas = await artistaAPI.GetArtistasAsync();
+    }
+}

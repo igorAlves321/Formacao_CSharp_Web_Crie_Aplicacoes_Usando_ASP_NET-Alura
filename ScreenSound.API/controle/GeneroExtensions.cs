@@ -3,6 +3,7 @@ using ScreenSound.API.Requests;
 using ScreenSound.API.Response;
 using ScreenSound.db;
 using ScreenSound.Modelos;
+using ScreenSound.Shared.Modelos;
 
 namespace ScreenSound.API.controle;
 

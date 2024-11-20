@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using ScreenSound.API.Endpoints;
-using ScreenSound.Banco;
+using ScreenSound.db;
 using ScreenSound.Modelos;
-using ScreenSound.Shared.Modelos.Modelos;
+using ScreenSound.Shared.Modelos;
 using System.Data.SqlTypes;
 using System.Text.Json.Serialization;
 

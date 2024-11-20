@@ -1,40 +1,43 @@
-﻿namespace ScreenSound.Modelos
+﻿namespace ScreenSound.Modelos; 
+
+public class Artista 
 {
-    public class Artista
+    public virtual ICollection<Musica> Musicas { get; set; } = new List<Musica>();
+    public Artista()
     {
-        public int Id { get; set; }
-        public string Nome { get; set; } = string.Empty; // Inicializando a propriedade
-        public string Bio { get; set; } = string.Empty;  // Inicializando a propriedade
-        public string? FotoPerfil { get; set; } // Propriedade FotoPerfil, pode ser nula
-public virtual ICollection<Musica> Musicas { get; set; } = new List<Musica>();
+        FotoPerfil = "https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_1280.png";
+    }
+    public Artista(string nome, string bio)
+    {
+        Nome = nome;
+        Bio = bio;
+        FotoPerfil = "https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_1280.png";
+    }
 
-        // Construtor que aceita dois argumentos
-        public Artista(string nome, string bio)
-        {
-            Nome = nome;
-            Bio = bio;
-        }
+    public string Nome { get; set; }
+    public string FotoPerfil { get; set; }
+    public string Bio { get; set; }
+    public int Id { get; set; }
 
-        // Método para exibir a discografia do artista
-        public void ExibirDiscografia()
-        {
-            Console.WriteLine($"Discografia de {Nome}:");
-            if (Musicas.Any())
-            {
-                foreach (var musica in Musicas)
-                {
-                    Console.WriteLine($"- {musica}");
-                }
-            }
-            else
-            {
-                Console.WriteLine("Nenhuma música registrada.");
-            }
-        }
+    public void AdicionarMusica(Musica musica)
+    {
+        Musicas.Add(musica);
+    }
 
-        public override string ToString()
+    public void ExibirDiscografia()
+    {
+        Console.WriteLine($"Discografia do artista {Nome}");
+        foreach (var musica in Musicas)
         {
-            return $"Nome: {Nome} - Bio: {Bio}";
+            Console.WriteLine($"Música: {musica.Nome} - Ano de Lançamento: {musica.AnoLancamento}");
         }
+    }
+
+    public override string ToString()
+    {
+        return $@"Id: {Id}
+            Nome: {Nome}
+            Foto de Perfil: {FotoPerfil}
+            Bio: {Bio}";
     }
 }

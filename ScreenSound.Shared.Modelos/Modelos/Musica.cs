@@ -1,25 +1,34 @@
-﻿using System.Collections.Generic;
+﻿using ScreenSound.Shared.Modelos;
 
-namespace ScreenSound.Modelos
+namespace ScreenSound.Modelos;
+
+public class Musica
 {
-    public class Musica
+    public Musica()
     {
-        public Musica(string nome)
-        {
-            Nome = nome;
-        }
+        
+    }
+    public Musica(string nome)
+    {
+        Nome = nome;
+    }
 
-        public int Id { get; set; }
-        public string Nome { get; set; }
-        public int? AnoLancamento { get; set; }
-        public int ArtistaId { get; set; } // Adicionando a propriedade ArtistaId
-        public virtual Artista? Artista { get; set; } // Relacionamento com Artista
+    public string Nome { get; set; }
+    public int Id { get; set; }
+    public int? AnoLancamento { get; set; }
+    public int? ArtistaId { get; set; }
+    public virtual Artista? Artista { get; set; }
+    public virtual ICollection<Genero> Generos { get; set; }
+    public void ExibirFichaTecnica()
+    {
+        Console.WriteLine($"Nome: {Nome}");
+      
+    }
 
-        public virtual ICollection<Genero> Generos { get; set; } = new List<Genero>();
+    public override string ToString()
+    {
+        return @$"Id: {Id}
+        Nome: {Nome}";
 
-        public override string ToString()
-        {
-            return $"Nome: {Nome} - Ano de Lançamento: {AnoLancamento}";
-        }
     }
 }
