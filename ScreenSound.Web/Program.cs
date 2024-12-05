@@ -1,21 +1,18 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using MudBlazor.Services;
 using ScreenSound.Web;
 using ScreenSound.Web.Services;
-using MudBlazor.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-// Registrar MudBlazor
 builder.Services.AddMudServices();
 
-// Registrar ArtistaAPI e MusicaAPI
-builder.Services.AddTransient<ArtistaAPI>();
-builder.Services.AddTransient<MusicaAPI>();
+builder.Services.AddTransient<ArtistasAPI>();
+builder.Services.AddTransient<MusicasAPI>();
 
-// Configurar HttpClient com a URL base da API
 builder.Services.AddHttpClient("API", client => {
     client.BaseAddress = new Uri(builder.Configuration["APIServer:Url"]!);
     client.DefaultRequestHeaders.Add("Accept", "application/json");
