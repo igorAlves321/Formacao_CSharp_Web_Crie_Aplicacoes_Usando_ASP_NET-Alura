@@ -4,15 +4,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using ScreenSound.db;
+using ScreenSound.Banco;
 
 #nullable disable
 
-namespace ScreenSound.Migrations
+namespace ScreenSound.Shared.Dados.Migrations
 {
     [DbContext(typeof(ScreenSoundContext))]
-    [Migration("20241109045945_CriarTabelaGenero")]
-    partial class CriarTabelaGenero
+    [Migration("20241205213623_InitialMySqlMigration")]
+    partial class InitialMySqlMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,21 @@ namespace ScreenSound.Migrations
                 .HasAnnotation("Proxies:CheckEquality", false)
                 .HasAnnotation("Proxies:LazyLoading", true)
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
+
+            modelBuilder.Entity("GeneroMusica", b =>
+                {
+                    b.Property<int>("GenerosId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MusicasId")
+                        .HasColumnType("int");
+
+                    b.HasKey("GenerosId", "MusicasId");
+
+                    b.HasIndex("MusicasId");
+
+                    b.ToTable("GeneroMusica");
+                });
 
             modelBuilder.Entity("ScreenSound.Modelos.Artista", b =>
                 {
@@ -48,23 +63,6 @@ namespace ScreenSound.Migrations
                     b.ToTable("Artistas");
                 });
 
-            modelBuilder.Entity("ScreenSound.Modelos.Genero", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("Descricao")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Nome")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Generos");
-                });
-
             modelBuilder.Entity("ScreenSound.Modelos.Musica", b =>
                 {
                     b.Property<int>("Id")
@@ -86,6 +84,38 @@ namespace ScreenSound.Migrations
                     b.HasIndex("ArtistaId");
 
                     b.ToTable("Musicas");
+                });
+
+            modelBuilder.Entity("ScreenSound.Shared.Modelos.Modelos.Genero", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Descricao")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Nome")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Generos");
+                });
+
+            modelBuilder.Entity("GeneroMusica", b =>
+                {
+                    b.HasOne("ScreenSound.Shared.Modelos.Modelos.Genero", null)
+                        .WithMany()
+                        .HasForeignKey("GenerosId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ScreenSound.Modelos.Musica", null)
+                        .WithMany()
+                        .HasForeignKey("MusicasId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ScreenSound.Modelos.Musica", b =>

@@ -3,11 +3,11 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using ScreenSound.db;
+using ScreenSound.Banco;
 
 #nullable disable
 
-namespace ScreenSound.Migrations
+namespace ScreenSound.Shared.Dados.Migrations
 {
     [DbContext(typeof(ScreenSoundContext))]
     partial class ScreenSoundContextModelSnapshot : ModelSnapshot
@@ -34,7 +34,7 @@ namespace ScreenSound.Migrations
 
                     b.HasIndex("MusicasId");
 
-                    b.ToTable("MusicaGenero", (string)null);
+                    b.ToTable("GeneroMusica");
                 });
 
             modelBuilder.Entity("ScreenSound.Modelos.Artista", b =>
@@ -60,23 +60,6 @@ namespace ScreenSound.Migrations
                     b.ToTable("Artistas");
                 });
 
-            modelBuilder.Entity("ScreenSound.Modelos.Genero", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("Descricao")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Nome")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Generos");
-                });
-
             modelBuilder.Entity("ScreenSound.Modelos.Musica", b =>
                 {
                     b.Property<int>("Id")
@@ -100,9 +83,26 @@ namespace ScreenSound.Migrations
                     b.ToTable("Musicas");
                 });
 
+            modelBuilder.Entity("ScreenSound.Shared.Modelos.Modelos.Genero", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Descricao")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Nome")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Generos");
+                });
+
             modelBuilder.Entity("GeneroMusica", b =>
                 {
-                    b.HasOne("ScreenSound.Modelos.Genero", null)
+                    b.HasOne("ScreenSound.Shared.Modelos.Modelos.Genero", null)
                         .WithMany()
                         .HasForeignKey("GenerosId")
                         .OnDelete(DeleteBehavior.Cascade)

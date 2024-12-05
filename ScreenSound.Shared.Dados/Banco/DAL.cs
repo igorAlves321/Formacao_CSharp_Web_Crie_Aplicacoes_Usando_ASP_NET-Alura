@@ -1,10 +1,11 @@
-﻿using System;
+﻿using ScreenSound.Modelos;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ScreenSound.db;
+namespace ScreenSound.Banco;
 public class DAL<T> where T : class
 {
     private readonly ScreenSoundContext context;
@@ -37,10 +38,5 @@ public class DAL<T> where T : class
     public T? RecuperarPor(Func<T, bool> condicao)
     {
         return context.Set<T>().FirstOrDefault(condicao);
-    }
-
-    public IEnumerable<T> ListarPor(Func<T, bool> condicao)
-    {
-        return context.Set<T>().Where(condicao);
     }
 }
