@@ -1,4 +1,4 @@
-﻿using ScreenSound.Shared.Modelos;
+﻿using ScreenSound.Shared.Modelos.Modelos;
 
 namespace ScreenSound.Modelos;
 
