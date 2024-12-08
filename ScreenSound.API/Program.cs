@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using ScreenSound.API.Endpoints;
 using ScreenSound.Banco;
 using ScreenSound.Modelos;
+using ScreenSound.Shared.Dados.Modelos; // Para PessoaComAcesso e PerfilDeAcesso
 using ScreenSound.Shared.Modelos.Modelos;
 using System.Text.Json.Serialization;
 
@@ -18,6 +19,14 @@ builder.Services.AddDbContext<ScreenSoundContext>((options) =>
             new MySqlServerVersion(new Version(8, 0, 29)))
         .UseLazyLoadingProxies();
 });
+
+// Configuração de ASP.NET Core Identity
+builder.Services
+    .AddIdentityApiEndpoints<PessoaComAcesso>() // Adiciona endpoints padrão de autenticação
+    .AddEntityFrameworkStores<ScreenSoundContext>(); // Define o contexto para armazenar dados de identidade
+
+// Configuração de Autorização
+builder.Services.AddAuthorization(); // Adiciona suporte à autorização
 
 // Serviços de Repositório
 builder.Services.AddTransient<DAL<Artista>>();
@@ -49,10 +58,23 @@ var app = builder.Build();
 // Ativar o CORS
 app.UseCors("AllowFrontend");
 
+// Middleware de autenticação e autorização
+app.UseAuthentication(); // Necessário para processar tokens de autenticação
+app.UseAuthorization();  // Necessário para verificar permissões
+
 app.UseStaticFiles();
+
+// Endpoints de artistas, músicas e gêneros
 app.AddEndPointsArtistas();
 app.AddEndPointsMusicas();
 app.AddEndPointGeneros();
+
+// Mapeamento de endpoints de identidade
+app.MapGroup("auth")
+   .MapIdentityApi<PessoaComAcesso>() // Configura os endpoints padrão do Identity
+   .WithTags("Autorização");          // Adiciona a tag "Autorização" para organização no Swagger
+
+// Configuração de Swagger
 app.UseSwagger();
 app.UseSwaggerUI();
 
