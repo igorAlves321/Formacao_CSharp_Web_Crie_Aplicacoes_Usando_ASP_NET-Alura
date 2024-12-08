@@ -1,12 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ScreenSound.Modelos;
 using ScreenSound.Shared.Modelos.Modelos;
+using ScreenSound.Shared.Dados.Modelos;
 using System;
 using System.Collections.Generic;
 
 namespace ScreenSound.Banco;
 
-    public class ScreenSoundContext : DbContext
+public class ScreenSoundContext: IdentityDbContext<PessoaComAcesso, PerfilDeAcesso, int>
     {
         // DbSets representando as tabelas do banco de dados
         public DbSet<Artista> Artistas { get; set; }

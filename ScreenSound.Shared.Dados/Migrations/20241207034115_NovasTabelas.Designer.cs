@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ScreenSound.Banco;
 
@@ -10,9 +11,11 @@ using ScreenSound.Banco;
 namespace ScreenSound.Shared.Dados.Migrations
 {
     [DbContext(typeof(ScreenSoundContext))]
-    partial class ScreenSoundContextModelSnapshot : ModelSnapshot
+    [Migration("20241207034115_NovasTabelas")]
+    partial class NovasTabelas
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -182,7 +185,24 @@ namespace ScreenSound.Shared.Dados.Migrations
                     b.ToTable("Musicas");
                 });
 
-            modelBuilder.Entity("ScreenSound.Shared.Dados.Modelos.PerfilDeAcesso", b =>
+            modelBuilder.Entity("ScreenSound.Shared.Modelos.Modelos.Genero", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Descricao")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Nome")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Generos");
+                });
+
+            modelBuilder.Entity("ScreenSound.Shared.Modelos.Modelos.PerfilDeAcesso", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -209,7 +229,7 @@ namespace ScreenSound.Shared.Dados.Migrations
                     b.ToTable("AspNetRoles", (string)null);
                 });
 
-            modelBuilder.Entity("ScreenSound.Shared.Dados.Modelos.PessoaComAcesso", b =>
+            modelBuilder.Entity("ScreenSound.Shared.Modelos.Modelos.PessoaComAcesso", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -274,23 +294,6 @@ namespace ScreenSound.Shared.Dados.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("ScreenSound.Shared.Modelos.Modelos.Genero", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("Descricao")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Nome")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Generos");
-                });
-
             modelBuilder.Entity("GeneroMusica", b =>
                 {
                     b.HasOne("ScreenSound.Shared.Modelos.Modelos.Genero", null)
@@ -308,7 +311,7 @@ namespace ScreenSound.Shared.Dados.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
-                    b.HasOne("ScreenSound.Shared.Dados.Modelos.PerfilDeAcesso", null)
+                    b.HasOne("ScreenSound.Shared.Modelos.Modelos.PerfilDeAcesso", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -317,7 +320,7 @@ namespace ScreenSound.Shared.Dados.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
-                    b.HasOne("ScreenSound.Shared.Dados.Modelos.PessoaComAcesso", null)
+                    b.HasOne("ScreenSound.Shared.Modelos.Modelos.PessoaComAcesso", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -326,7 +329,7 @@ namespace ScreenSound.Shared.Dados.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
-                    b.HasOne("ScreenSound.Shared.Dados.Modelos.PessoaComAcesso", null)
+                    b.HasOne("ScreenSound.Shared.Modelos.Modelos.PessoaComAcesso", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -335,13 +338,13 @@ namespace ScreenSound.Shared.Dados.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
                 {
-                    b.HasOne("ScreenSound.Shared.Dados.Modelos.PerfilDeAcesso", null)
+                    b.HasOne("ScreenSound.Shared.Modelos.Modelos.PerfilDeAcesso", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ScreenSound.Shared.Dados.Modelos.PessoaComAcesso", null)
+                    b.HasOne("ScreenSound.Shared.Modelos.Modelos.PessoaComAcesso", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -350,7 +353,7 @@ namespace ScreenSound.Shared.Dados.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
-                    b.HasOne("ScreenSound.Shared.Dados.Modelos.PessoaComAcesso", null)
+                    b.HasOne("ScreenSound.Shared.Modelos.Modelos.PessoaComAcesso", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)

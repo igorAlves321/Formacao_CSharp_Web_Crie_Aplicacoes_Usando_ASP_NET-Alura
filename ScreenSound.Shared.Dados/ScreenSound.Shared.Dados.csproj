@@ -13,6 +13,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.10" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.0" />
+    <!-- Dependência do ASP.NET Core Identity -->
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
