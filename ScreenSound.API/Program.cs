@@ -22,8 +22,8 @@ builder.Services.AddDbContext<ScreenSoundContext>((options) =>
 
 // Configuração de ASP.NET Core Identity
 builder.Services
-    .AddIdentityApiEndpoints<PessoaComAcesso>() // Adiciona endpoints padrão de autenticação
-    .AddEntityFrameworkStores<ScreenSoundContext>(); // Define o contexto para armazenar dados de identidade
+    .AddIdentityApiEndpoints<PessoaComAcesso>()
+    .AddEntityFrameworkStores<ScreenSoundContext>();
 
 // Configuração de Autorização
 builder.Services.AddAuthorization(); // Adiciona suporte à autorização
