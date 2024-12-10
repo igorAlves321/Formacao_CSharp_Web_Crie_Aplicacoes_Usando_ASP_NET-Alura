@@ -9,7 +9,7 @@ using ScreenSound.Shared.Dados.Modelos; // Para PessoaComAcesso e PerfilDeAcesso
 using ScreenSound.Shared.Modelos.Modelos;
 using System.Text.Json.Serialization;
 
-//
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Configuração do banco MySQL
@@ -45,7 +45,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("http://localhost:7015") // URL do frontend
+            policy.WithOrigins("http://localhost:7015")
                 .AllowAnyMethod()
                 .AllowAnyHeader();
         });
@@ -61,8 +61,10 @@ var app = builder.Build();
 app.UseCors("AllowFrontend");
 
 // Middleware de autenticação e autorização
-app.UseAuthentication(); // Necessário para processar tokens de autenticação
-app.UseAuthorization();  // Necessário para verificar permissões
+app.UseAuthentication();
+ // Necessário para processar tokens de autenticação
+app.UseAuthorization();
+  // Necessário para verificar permissões
 
 app.UseStaticFiles();
 
