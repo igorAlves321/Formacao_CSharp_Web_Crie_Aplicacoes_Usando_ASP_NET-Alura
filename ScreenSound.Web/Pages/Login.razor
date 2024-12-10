@@ -1,6 +1,8 @@
 ﻿@page "/login"
+@inject NavigationManager Navigation
 @inject AuthAPI AuthAPI
 @attribute [AllowAnonymous]
+
 <AuthorizeView>
     <Authorized>
         <MudPaper Class="px-8 pt-2 pb-4 mx-16 my-8" Justify="Justify.Center">
@@ -25,6 +27,13 @@
                            Class="my-6" @onclick="FazerLogin">
                     Login
                 </MudButton>
+
+                @if (showErrorMessage)
+                {
+                    <MudText Class="text-danger my-4">
+                        @errorMessage
+                    </MudText>
+                }
             </MudForm>
         </MudPaper>
     </NotAuthorized>
@@ -33,15 +42,27 @@
 @code {
     private string? email;
     private string? senha;
+    private bool showErrorMessage = false;
+    private string? errorMessage;
+
+    [SupplyParameterFromQuery]
+    public string? ReturnUrl { get; set; }
 
     private async Task FazerLogin()
     {
         var response = await AuthAPI.LoginAsync(email, senha);
 
-        if (!response.Sucesso)
+        if (response.Sucesso)
         {
-            // Aqui você pode exibir uma mensagem de erro ao usuário, se necessário.
-            Console.WriteLine(string.Join(", ", response.Erros));
+            // Oculta a mensagem de erro, caso exista, e redireciona o usuário.
+            showErrorMessage = false;
+            Navigation.NavigateTo(ReturnUrl ?? "/");
+        }
+        else
+        {
+            // Exibe a mensagem de erro.
+            showErrorMessage = true;
+            errorMessage = string.Join(", ", response.Erros);
         }
     }
 }
