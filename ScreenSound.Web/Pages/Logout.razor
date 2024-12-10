@@ -1,0 +1,17 @@
+@page "/logout"
+@inject AuthAPI AuthAPI
+@inject NavigationManager NavigationManager
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        // Verifica se o usuário está autenticado antes de chamar o logout
+        if (await AuthAPI.VerificaAutenticado())
+        {
+            await AuthAPI.LogoutAsync();
+        }
+
+        // Redireciona para a página de login após o logout
+        NavigationManager.NavigateTo("/login");
+    }
+}

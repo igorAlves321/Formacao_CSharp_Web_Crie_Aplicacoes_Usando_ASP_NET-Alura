@@ -8,6 +8,7 @@ namespace ScreenSound.Web.Services;
 public class AuthAPI : AuthenticationStateProvider
 {
     private readonly HttpClient _httpClient;
+    private bool autenticado = false; // Novo campo para rastrear o estado de autenticação.
 
     public AuthAPI(IHttpClientFactory factory)
     {
@@ -17,6 +18,7 @@ public class AuthAPI : AuthenticationStateProvider
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         // Inicializa com um estado "não autenticado".
+        autenticado = false;
         var pessoa = new ClaimsPrincipal();
 
         try
@@ -41,8 +43,9 @@ public class AuthAPI : AuthenticationStateProvider
                     // Cria a identidade do usuário autenticado.
                     var identity = new ClaimsIdentity(dados, "Cookies");
 
-                    // Atualiza a pessoa autenticada.
+                    // Atualiza a pessoa autenticada e o estado.
                     pessoa = new ClaimsPrincipal(identity);
+                    autenticado = true;
                 }
             }
         }
@@ -107,5 +110,11 @@ public class AuthAPI : AuthenticationStateProvider
         {
             Console.WriteLine($"Erro ao realizar logout: {ex.Message}");
         }
+    }
+
+    public async Task<bool> VerificaAutenticado()
+    {
+        await GetAuthenticationStateAsync();
+        return autenticado;
     }
 }
