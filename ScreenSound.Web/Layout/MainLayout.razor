@@ -1,4 +1,6 @@
 ﻿@inherits LayoutComponentBase
+@inject AuthAPI AuthAPI
+@inject NavigationManager NavigationManager
 
 <MudThemeProvider Theme="currentTheme" />
 <MudDialogProvider />
@@ -6,7 +8,17 @@
 
 <MudLayout>
     <MudAppBar Color="Color.Surface" Fixed="true" Elevation="2">
-        <MudImage Src="images/screensound-logo.png"></MudImage>
+        <MudImage Src="images/screensound-logo.png" Alt="ScreenSound Logo"></MudImage>
+
+        <MudSpacer /> <!-- Espaço flexível para empurrar o botão para a direita -->
+
+        <AuthorizeView>
+            <Authorized>
+                <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="Logout">
+                    Logout
+                </MudButton>
+            </Authorized>
+        </AuthorizeView>
     </MudAppBar>
     <MudDrawer Open="true" ClipMode="DrawerClipMode.Always" Elevation="2">
         <NavMenu></NavMenu>
@@ -21,4 +33,10 @@
     {
         Palette = ScreendsoundPallete.CreatePallete
     };
+
+    private async Task Logout()
+    {
+        await AuthAPI.LogoutAsync();
+        NavigationManager.NavigateTo("/login");
+    }
 }

@@ -8,14 +8,24 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
+// Configuração de serviços do MudBlazor
 builder.Services.AddMudServices();
-builder.Services.AddScoped<CookieHandler>();
-builder.Services.AddScoped<ArtistaAPI>();
-builder.Services.AddScoped<MusicaAPI>();
 
-builder.Services.AddHttpClient("API",client => {
+// Configuração de autenticação e autorização
+builder.Services.AddAuthorizationCore();
+builder.Services.AddScoped<AuthenticationStateProvider, AuthAPI>();
+builder.Services.AddScoped<AuthAPI>(sp => (AuthAPI)sp.GetRequiredService<AuthenticationStateProvider>());
+
+// Configuração de APIs
+builder.Services.AddScoped<CookieHandler>();
+builder.Services.AddHttpClient("API", client =>
+{
     client.BaseAddress = new Uri(builder.Configuration["APIServer:Url"]!);
     client.DefaultRequestHeaders.Add("Accept", "application/json");
 }).AddHttpMessageHandler<CookieHandler>();
+
+// Configuração das APIs específicas do sistema
+builder.Services.AddScoped<ArtistaAPI>();
+builder.Services.AddScoped<MusicaAPI>();
 
 await builder.Build().RunAsync();
