@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Identity; // Necessário para SignInManager
 using ScreenSound.API.Endpoints;
 using ScreenSound.Banco;
 using ScreenSound.Modelos;
@@ -73,6 +74,15 @@ app.AddEndPointGeneros();
 app.MapGroup("auth")
    .MapIdentityApi<PessoaComAcesso>() // Configura os endpoints padrão do Identity
    .WithTags("Autorização");          // Adiciona a tag "Autorização" para organização no Swagger
+
+// Endpoint de Logout
+app.MapPost("auth/logout", async ([FromServices] SignInManager<PessoaComAcesso> signInManager) =>
+{
+    await signInManager.SignOutAsync(); // Remove o cookie de autenticação
+    return Results.Ok();
+})
+.RequireAuthorization() // Requer que o usuário esteja autenticado para acessar
+.WithTags("Autorização"); // Tag para organização no Swagger
 
 // Configuração de Swagger
 app.UseSwagger();
