@@ -9,6 +9,7 @@ using ScreenSound.Shared.Dados.Modelos; // Para PessoaComAcesso e PerfilDeAcesso
 using ScreenSound.Shared.Modelos.Modelos;
 using System.Text.Json.Serialization;
 
+//
 var builder = WebApplication.CreateBuilder(args);
 
 // Configuração do banco MySQL
