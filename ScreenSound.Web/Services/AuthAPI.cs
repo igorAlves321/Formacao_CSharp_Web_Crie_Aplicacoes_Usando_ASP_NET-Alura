@@ -83,7 +83,7 @@ public class AuthAPI : AuthenticationStateProvider
             return new AuthResponse
             {
                 Sucesso = false,
-                Erros = new List<string> { $"Erro de autenticação: {errorContent}" }
+                Erros = new List<string> { $"Erro de autenticação: {errorContent}" }.ToArray()
             };
         }
         catch (Exception ex)
@@ -91,7 +91,7 @@ public class AuthAPI : AuthenticationStateProvider
             return new AuthResponse
             {
                 Sucesso = false,
-                Erros = new List<string> { $"Erro inesperado: {ex.Message}" }
+                Erros = new List<string> { $"Erro inesperado: {ex.Message}" }.ToArray()
             };
         }
     }

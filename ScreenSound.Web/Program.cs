@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
 using ScreenSound.Web;
 using ScreenSound.Web.Services;
+using Microsoft.AspNetCore.Components.Authorization; 
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
