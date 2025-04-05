@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Microsoft.AspNetCore.Identity; // Necessário para SignInManager
+using Microsoft.AspNetCore.Identity;
 using ScreenSound.API.Endpoints;
 using ScreenSound.Banco;
 using ScreenSound.Modelos;
@@ -47,7 +47,8 @@ builder.Services.AddCors(options =>
         {
             policy.WithOrigins("http://localhost:7015")
                 .AllowAnyMethod()
-                .AllowAnyHeader();
+                .AllowAnyHeader()
+                .AllowCredentials();  // Adicionada esta linha para permitir credenciais
         });
 });
 

@@ -2,13 +2,15 @@ using Microsoft.AspNetCore.Components.Authorization;
 using ScreenSound.Web.Response;
 using System.Net.Http.Json;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace ScreenSound.Web.Services;
 
 public class AuthAPI : AuthenticationStateProvider
 {
     private readonly HttpClient _httpClient;
-    private bool autenticado = false; // Novo campo para rastrear o estado de autenticação.
+    private bool autenticado = false;
+    private string? _accessToken;
 
     public AuthAPI(IHttpClientFactory factory)
     {
@@ -17,48 +19,92 @@ public class AuthAPI : AuthenticationStateProvider
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        // Inicializa com um estado "não autenticado".
-        autenticado = false;
-        var pessoa = new ClaimsPrincipal();
+        // Inicializa com um estado "não autenticado"
+        var pessoa = new ClaimsPrincipal(new ClaimsIdentity());
 
         try
         {
-            // Faz a requisição para obter informações do usuário autenticado.
-            var response = await _httpClient.GetAsync("auth/manage/info");
-
-            if (response.IsSuccessStatusCode)
+            // Verifica se temos um token
+            if (!string.IsNullOrEmpty(_accessToken))
             {
-                // Lê os dados do usuário autenticado.
-                var info = await response.Content.ReadFromJsonAsync<InfoPessoaResponse>();
+                // Garante que o token está configurado no cabeçalho
+                _httpClient.DefaultRequestHeaders.Authorization = 
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessToken);
 
-                if (info is not null)
+                // Tenta acessar um endpoint protegido para verificar se o token é válido
+                var response = await _httpClient.GetAsync("musicas");
+                
+                if (response.IsSuccessStatusCode)
                 {
-                    // Monta os dados (claims) do usuário.
-                    Claim[] dados =
-                    {
-                        new Claim(ClaimTypes.Name, info.Email),
-                        new Claim(ClaimTypes.Email, info.Email)
-                    };
-
-                    // Cria a identidade do usuário autenticado.
-                    var identity = new ClaimsIdentity(dados, "Cookies");
-
-                    // Atualiza a pessoa autenticada e o estado.
-                    pessoa = new ClaimsPrincipal(identity);
                     autenticado = true;
+                    
+                    // Como a resposta foi bem-sucedida, podemos tentar obter informações do usuário
+                    try
+                    {
+                        var infoResponse = await _httpClient.GetAsync("auth/manage/info");
+                        if (infoResponse.IsSuccessStatusCode)
+                        {
+                            var info = await infoResponse.Content.ReadFromJsonAsync<InfoPessoaResponse>();
+                            
+                            if (info != null)
+                            {
+                                // Monta os dados do usuário
+                                Claim[] dados =
+                                {
+                                    new Claim(ClaimTypes.Name, info.Email ?? "usuário"),
+                                    new Claim(ClaimTypes.Email, info.Email ?? "email@exemplo.com")
+                                };
+
+                                var identity = new ClaimsIdentity(dados, "JWT");
+                                pessoa = new ClaimsPrincipal(identity);
+                            }
+                        }
+                        else
+                        {
+                            // Mesmo sem informações detalhadas, ainda consideramos autenticado
+                            // já que a requisição para musicas foi bem-sucedida
+                            var identity = new ClaimsIdentity(new[] 
+                            { 
+                                new Claim(ClaimTypes.Name, "usuário") 
+                            }, "JWT");
+                            
+                            pessoa = new ClaimsPrincipal(identity);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Erro ao obter informações do usuário: {ex.Message}");
+                        
+                        // Mesmo com erro, consideramos autenticado
+                        var identity = new ClaimsIdentity(new[] 
+                        { 
+                            new Claim(ClaimTypes.Name, "usuário") 
+                        }, "JWT");
+                        
+                        pessoa = new ClaimsPrincipal(identity);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"Erro ao verificar token: {(int)response.StatusCode}");
+                    autenticado = false;
+                    _accessToken = null;
+                    _httpClient.DefaultRequestHeaders.Authorization = null;
                 }
             }
-        }
-        catch (HttpRequestException ex)
-        {
-            Console.WriteLine($"Erro de rede ao verificar autenticação: {ex.Message}");
+            else
+            {
+                autenticado = false;
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Erro inesperado ao verificar autenticação: {ex.Message}");
+            Console.WriteLine($"Erro ao verificar autenticação: {ex.Message}");
+            autenticado = false;
+            _accessToken = null;
+            _httpClient.DefaultRequestHeaders.Authorization = null;
         }
 
-        // Retorna o estado de autenticação.
         return new AuthenticationState(pessoa);
     }
 
@@ -66,32 +112,79 @@ public class AuthAPI : AuthenticationStateProvider
     {
         try
         {
-            // Envia a requisição de login para a API.
-            var response = await _httpClient.PostAsJsonAsync("auth/login", new
+            Console.WriteLine($"Iniciando login para {email}");
+            
+            // Limpa qualquer autenticação anterior
+            _accessToken = null;
+            _httpClient.DefaultRequestHeaders.Authorization = null;
+            
+            // Formato exato esperado pelo Identity API
+            var loginData = new
             {
-                email,
+                email = email,
                 password = senha
-            });
+            };
+            
+            // Envia a requisição de login
+            var response = await _httpClient.PostAsJsonAsync("auth/login", loginData);
+            var statusCode = (int)response.StatusCode;
+            var responseContent = await response.Content.ReadAsStringAsync();
+            
+            Console.WriteLine($"Resposta do login: Status {statusCode}");
+            Console.WriteLine($"Conteúdo da resposta: {responseContent}");
 
             if (response.IsSuccessStatusCode)
             {
+                try
+                {
+                    // Tenta extrair o token JWT da resposta
+                    var jsonResponse = JsonDocument.Parse(responseContent);
+                    
+                    if (jsonResponse.RootElement.TryGetProperty("accessToken", out var tokenElement))
+                    {
+                        _accessToken = tokenElement.GetString();
+                        
+                        // Configura o token para todas as requisições futuras
+                        _httpClient.DefaultRequestHeaders.Authorization = 
+                            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessToken);
+                        
+                        Console.WriteLine($"Token capturado: {_accessToken?.Substring(0, 30)}...");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Token não encontrado na resposta. Campos disponíveis:");
+                        foreach (var prop in jsonResponse.RootElement.EnumerateObject())
+                        {
+                            Console.WriteLine($"- {prop.Name}");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Erro ao processar token: {ex.Message}");
+                }
+                
+                // Notifica mudança no estado de autenticação
+                autenticado = true;
                 NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+                
                 return new AuthResponse { Sucesso = true };
             }
 
-            var errorContent = await response.Content.ReadAsStringAsync();
             return new AuthResponse
             {
                 Sucesso = false,
-                Erros = new List<string> { $"Erro de autenticação: {errorContent}" }.ToArray()
+                Erros = new[] { $"Erro de autenticação ({statusCode}): {responseContent}" }
             };
         }
         catch (Exception ex)
         {
+            Console.WriteLine($"Exceção durante login: {ex.Message}");
+            
             return new AuthResponse
             {
                 Sucesso = false,
-                Erros = new List<string> { $"Erro inesperado: {ex.Message}" }.ToArray()
+                Erros = new[] { $"Erro inesperado: {ex.Message}" }
             };
         }
     }
@@ -100,20 +193,35 @@ public class AuthAPI : AuthenticationStateProvider
     {
         try
         {
-            // Envia a requisição de logout para a API.
-            await _httpClient.PostAsync("auth/logout", null);
-
-            // Notifica a aplicação para que ela saiba que o usuário foi deslogado.
+            // Envia a requisição de logout apenas se estiver autenticado
+            if (!string.IsNullOrEmpty(_accessToken))
+            {
+                var response = await _httpClient.PostAsync("auth/logout", null);
+                Console.WriteLine($"Logout status: {(int)response.StatusCode}");
+            }
+            
+            // Limpa o token e o cabeçalho de autorização
+            _accessToken = null;
+            _httpClient.DefaultRequestHeaders.Authorization = null;
+            
+            // Atualiza o estado de autenticação
+            autenticado = false;
             NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Erro ao realizar logout: {ex.Message}");
+            // Mesmo com erro, considera deslogado
+            _accessToken = null;
+            _httpClient.DefaultRequestHeaders.Authorization = null;
+            autenticado = false;
+            NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
         }
     }
 
     public async Task<bool> VerificaAutenticado()
     {
+        // Obtém o estado de autenticação atual
         await GetAuthenticationStateAsync();
         return autenticado;
     }
