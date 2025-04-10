@@ -10,23 +10,23 @@ using ScreenSoundMVC.Models;
 
 namespace ScreenSoundMVC.Controllers
 {
-    public class MusicasController : Controller
+    public class MusicaController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public MusicasController(ApplicationDbContext context)
+        public MusicaController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Musicas
+        // GET: Musica
         public async Task<IActionResult> Index()
         {
             var applicationDbContext = _context.Musicas.Include(m => m.Artista);
             return View(await applicationDbContext.ToListAsync());
         }
 
-        // GET: Musicas/Details/5
+        // GET: Musica/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -45,14 +45,14 @@ namespace ScreenSoundMVC.Controllers
             return View(musica);
         }
 
-        // GET: Musicas/Create
+        // GET: Musica/Create
         public IActionResult Create()
         {
             ViewData["ArtistaId"] = new SelectList(_context.Artistas, "Id", "Bio");
             return View();
         }
 
-        // POST: Musicas/Create
+        // POST: Musica/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -69,7 +69,7 @@ namespace ScreenSoundMVC.Controllers
             return View(musica);
         }
 
-        // GET: Musicas/Edit/5
+        // GET: Musica/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -86,7 +86,7 @@ namespace ScreenSoundMVC.Controllers
             return View(musica);
         }
 
-        // POST: Musicas/Edit/5
+        // POST: Musica/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -122,7 +122,7 @@ namespace ScreenSoundMVC.Controllers
             return View(musica);
         }
 
-        // GET: Musicas/Delete/5
+        // GET: Musica/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -141,7 +141,7 @@ namespace ScreenSoundMVC.Controllers
             return View(musica);
         }
 
-        // POST: Musicas/Delete/5
+        // POST: Musica/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
