@@ -53,4 +53,38 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
 
+
+// Código para criar usuário e perfil padrão
+
+using (var scope = app.Services.CreateScope())
+{
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<PessoaComAcesso>>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<PerfilDeAcesso>>();
+    
+    // Criar perfil Admin se não existir
+    if (!roleManager.RoleExistsAsync("Admin").Result)
+    {
+        var role = new PerfilDeAcesso { Name = "Admin" };
+        roleManager.CreateAsync(role).Wait();
+    }
+    
+    // Criar usuário admin se não existir
+    var admin = userManager.FindByEmailAsync("admin@admin.com").Result;
+    if (admin == null)
+    {
+        admin = new PessoaComAcesso
+        {
+            UserName = "admin@admin.com",
+            Email = "admin@admin.com",
+            EmailConfirmed = true
+        };
+        
+        var result = userManager.CreateAsync(admin, "Admin@123").Result;
+        if (result.Succeeded)
+        {
+            userManager.AddToRoleAsync(admin, "Admin").Wait();
+        }
+    }
+}
+
 app.Run();
